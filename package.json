@@ -18,11 +18,13 @@
     "@react-three/fiber": "^9.6.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@tailwindcss/postcss": "^4.2.2",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -38,6 +40,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "jsdom": "^29.0.2",
     "nodemon": "^3.1.14",
     "postcss": "^8.5.10",
     "prettier": "^3.8.3",
@@ -47,7 +50,8 @@
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.4",
     "vite-plugin-electron": "^0.29.1",
-    "vite-plugin-electron-renderer": "^0.14.6"
+    "vite-plugin-electron-renderer": "^0.14.6",
+    "vitest": "^4.1.4"
   },
   "build": {
     "appId": "com.openbusiness.app",
@@ -57,10 +61,8 @@
     },
     "win": {
       "target": [
-        "nsis",
         "portable"
-      ],
-      "icon": "src/assets/icon.ico"
+      ]
     },
     "files": [
       "dist/**/*",
