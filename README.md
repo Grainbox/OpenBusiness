@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# Open-Business
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Isometric business management game built with React, TypeScript, Vite, and Three.js / React Three Fiber.
 
-Currently, two official plugins are available:
+## Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Development
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Opens dev server at `http://localhost:5173/` with HMR.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Linting & Formatting
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run lint       # Check code with ESLint
+npm run format     # Format code with Prettier
 ```
+
+### Build
+
+```bash
+npm run build      # Build for production
+npm run preview    # Preview production build locally
+```
+
+## Project Structure
+
+```
+src/
+├── assets/          # Icons, images, static files
+├── components/      # React UI components (menus, modals, HUD)
+├── game/            # Pure game logic (rules, state, types)
+│   ├── store/       # Zustand stores
+│   └── types/       # TypeScript interfaces for game domain
+├── r3f/             # React Three Fiber scene components
+│   ├── camera/      # Camera configurations
+│   ├── lights/      # Lighting setup
+│   └── objects/     # 3D objects and meshes
+├── electron/        # Electron main process code
+│   ├── main.ts
+│   └── preload.ts
+└── App.tsx          # Root React component
+```
+
+## Technologies
+
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite 8
+- **3D Rendering**: Three.js + React Three Fiber
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand (upcoming)
+- **Desktop**: Electron + Electron Builder
+- **Code Quality**: ESLint + Prettier
+
+## Phase 1 Status
+
+- [x] #001 — Git repository initialization
+- [x] #002 — Vite + React + TypeScript setup
+- [x] #003 — ESLint + Prettier configuration
+- [x] #004 — Tailwind CSS configuration
+- [x] #005 — Project folder structure
+- [ ] #006 onwards — Electron integration (Phase 2)
