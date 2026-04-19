@@ -10,10 +10,13 @@ export default defineConfig({
         entry: 'src/electron/main.ts',
         vite: {
           build: {
+            target: 'esnext',
+            minify: false,
             rollupOptions: {
+              external: ['electron'],
               output: {
-                entryFileNames: '[name].cjs',
-                format: 'cjs',
+                format: 'esm',
+                entryFileNames: '[name].js',
               },
             },
           },
