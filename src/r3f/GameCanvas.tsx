@@ -1,9 +1,13 @@
 import { Canvas } from '@react-three/fiber';
 import IsometricCamera from './camera/IsometricCamera';
 import SceneLights from './lights/SceneLights';
-import TestCube from './objects/TestCube';
+import BoardMesh from './objects/BoardMesh';
 
-export default function GameCanvas() {
+interface GameCanvasProps {
+  showAllLabels?: boolean;
+}
+
+export default function GameCanvas({ showAllLabels }: GameCanvasProps) {
   return (
     <Canvas
       shadows
@@ -16,7 +20,7 @@ export default function GameCanvas() {
     >
       <IsometricCamera />
       <SceneLights />
-      <TestCube />
+      <BoardMesh showAllLabels={showAllLabels} />
     </Canvas>
   );
 }

@@ -1,0 +1,33 @@
+.tile-label {
+  pointer-events: none;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.tile-label__card {
+  background: rgba(15, 23, 42, 0.85);
+  color: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  min-width: 70px;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.3);
+}
+
+.tile-label__card--hover {
+  background: rgba(30, 64, 175, 0.9);
+  box-shadow: 0 8px 16px rgba(30, 64, 175, 0.35);
+}
+
+.tile-label__name {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tile-label__price {
+  margin-top: 2px;
+  font-size: 9px;
+  opacity: 0.8;
+}
