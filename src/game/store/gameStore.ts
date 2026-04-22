@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import type { GamePhase, TurnPhase, Player, PropertyState } from '../types';
 import { isValidTransition, logInvalidTransition } from './turnMachine';
+import { rollDice as rollDiceLogic, isDouble } from '../logic/dice';
+import { movePawnProgressive } from '../logic/movePawn';
+import { GO_REWARD } from '../logic/goReward';
 
 export interface GameStateActions {
   initGame: (playerNames: string[]) => void;
@@ -8,12 +11,15 @@ export interface GameStateActions {
   setDice: (dice: [number, number] | null) => void;
   setCurrentPlayerIndex: (index: number) => void;
   movePlayerTile: (playerId: string, tileIndex: number) => void;
+  movePawnProgressive: (playerId: string, spacesToMove: number) => Promise<void>;
   updatePlayerMoney: (playerId: string, amount: number) => void;
   setPlayerProperty: (tileIndex: number, ownerId: string | undefined) => void;
   setBankrupt: (playerId: string, bankrupt: boolean) => void;
   setInJail: (playerId: string, inJail: boolean) => void;
   incrementDoubleCount: (playerId: string) => void;
   resetDoubleCount: (playerId: string) => void;
+  rollDice: () => void;
+  resetDiceRoll: () => void;
   endTurn: () => void;
 }
 
@@ -23,6 +29,7 @@ export interface GameState extends GameStateActions {
   players: Player[];
   currentPlayerIndex: number;
   dice: [number, number] | null;
+  hasDouble: boolean;
   properties: Record<number, PropertyState>;
   turnCount: number;
 }
@@ -33,6 +40,7 @@ export const useGameStore = create<GameState>((set) => ({
   players: [],
   currentPlayerIndex: 0,
   dice: null,
+  hasDouble: false,
   properties: {},
   turnCount: 0,
 
@@ -47,6 +55,8 @@ export const useGameStore = create<GameState>((set) => ({
       bankrupt: false,
       inJail: false,
       doubleCount: 0,
+      hasDouble: false,
+      consecutiveDoubles: 0,
     }));
 
     set({
@@ -55,6 +65,7 @@ export const useGameStore = create<GameState>((set) => ({
       turnPhase: 'idle',
       turnCount: 0,
       dice: null,
+      hasDouble: false,
       properties: {},
     });
   },
@@ -83,6 +94,43 @@ export const useGameStore = create<GameState>((set) => ({
         p.id === playerId ? { ...p, tileIndex } : p
       ),
     }));
+  },
+
+  movePawnProgressive: async (playerId: string, spacesToMove: number) => {
+    const state = useGameStore.getState();
+    const player = state.players.find((p) => p.id === playerId);
+
+    if (!player) {
+      return;
+    }
+
+    await movePawnProgressive(
+      player.tileIndex,
+      spacesToMove,
+      {
+        onStepMove: (tileIndex: number) => {
+          set((state) => ({
+            players: state.players.map((p) =>
+              p.id === playerId ? { ...p, tileIndex } : p
+            ),
+          }));
+        },
+        onPassedGo: () => {
+          // Apply Go reward
+          set((state) => ({
+            players: state.players.map((p) =>
+              p.id === playerId
+                ? { ...p, money: p.money + GO_REWARD }
+                : p
+            ),
+          }));
+        },
+      }
+    );
+
+    set({
+      turnPhase: 'acting',
+    });
   },
 
   updatePlayerMoney: (playerId: string, amount: number) => {
@@ -136,6 +184,78 @@ export const useGameStore = create<GameState>((set) => ({
     }));
   },
 
+  rollDice: () => {
+    set((state) => {
+      const currentPhase = state.turnPhase;
+      if (!isValidTransition(currentPhase, 'rolling')) {
+        logInvalidTransition(currentPhase, 'rolling');
+        return state;
+      }
+
+      const dice = rollDiceLogic();
+      const double = isDouble(dice);
+      const currentPlayer = state.players[state.currentPlayerIndex];
+
+      if (!currentPlayer) {
+        return state;
+      }
+
+      const newConsecutiveDoubles = double
+        ? (currentPlayer.consecutiveDoubles ?? 0) + 1
+        : 0;
+
+      if (newConsecutiveDoubles >= 3) {
+        return {
+          ...state,
+          dice,
+          hasDouble: false,
+          turnPhase: 'acting',
+          players: state.players.map((p) =>
+            p.id === currentPlayer.id
+              ? {
+                  ...p,
+                  inJail: true,
+                  tileIndex: 10,
+                  hasDouble: double,
+                  consecutiveDoubles: 0,
+                }
+              : p
+          ),
+        };
+      }
+
+      return {
+        ...state,
+        dice,
+        hasDouble: double,
+        turnPhase: 'moving',
+        players: state.players.map((p) =>
+          p.id === currentPlayer.id
+            ? {
+                ...p,
+                hasDouble: double,
+                consecutiveDoubles: newConsecutiveDoubles,
+              }
+            : p
+        ),
+      };
+    });
+  },
+
+  resetDiceRoll: () => {
+    set((state) => {
+      if (state.turnPhase === 'idle') {
+        return state;
+      }
+
+      return {
+        dice: null,
+        hasDouble: false,
+        turnPhase: 'idle',
+      };
+    });
+  },
+
   endTurn: () => {
     set((state) => {
       const activePlayers = state.players.filter((p) => !p.bankrupt);
@@ -154,13 +274,16 @@ export const useGameStore = create<GameState>((set) => ({
 
       const nextPlayer = state.players[nextIndex];
       const updatedPlayers = state.players.map((p) =>
-        p.id === nextPlayer?.id ? { ...p, doubleCount: 0 } : p
+        p.id === nextPlayer?.id
+          ? { ...p, doubleCount: 0, hasDouble: false }
+          : p
       );
 
       return {
         currentPlayerIndex: nextIndex,
         turnPhase: 'idle',
         dice: null,
+        hasDouble: false,
         turnCount: nextIndex === 0 ? state.turnCount + 1 : state.turnCount,
         players: updatedPlayers,
       };

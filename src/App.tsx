@@ -1,9 +1,18 @@
 import { useState } from 'react';
 import GameCanvas from './r3f/GameCanvas';
+import DiceDisplay from './ui/components/DiceDisplay';
+import RollDiceButton from './ui/components/RollDiceButton';
+import ResetDiceButton from './ui/components/ResetDiceButton';
+import GameInitButton from './ui/components/GameInitButton';
+import GoRewardNotification from './ui/components/GoRewardNotification';
+import { useMovePawn } from './game/hooks/useMovePawn';
 
 function App() {
   const [showAllLabels, setShowAllLabels] = useState(false);
   const isDev = import.meta.env.DEV;
+
+  // Trigger pawn movement when rolling dice
+  useMovePawn();
 
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
@@ -32,6 +41,11 @@ function App() {
         </div>
       )}
       <GameCanvas showAllLabels={showAllLabels} />
+      <GameInitButton />
+      <DiceDisplay />
+      <RollDiceButton />
+      <ResetDiceButton />
+      <GoRewardNotification />
     </div>
   );
 }

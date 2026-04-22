@@ -272,4 +272,140 @@ describe('Game Store', () => {
     expect(useGameStore.getState().dice).toBeNull();
     expect(useGameStore.getState().turnPhase).toBe('idle');
   });
+
+  it('should roll dice from idle phase', () => {
+    const { initGame, rollDice } = useGameStore.getState();
+    initGame(['Joueur 1', 'Joueur 2']);
+
+    expect(useGameStore.getState().turnPhase).toBe('idle');
+    rollDice();
+
+    const state = useGameStore.getState();
+    expect(state.dice).not.toBeNull();
+    expect(state.dice![0]).toBeGreaterThanOrEqual(1);
+    expect(state.dice![0]).toBeLessThanOrEqual(6);
+    expect(state.dice![1]).toBeGreaterThanOrEqual(1);
+    expect(state.dice![1]).toBeLessThanOrEqual(6);
+    expect(state.turnPhase).toBe('moving');
+  });
+
+  it('should not roll dice from non-idle phase', () => {
+    const { initGame, setTurnPhase, rollDice } = useGameStore.getState();
+    initGame(['Joueur 1', 'Joueur 2']);
+
+    setTurnPhase('rolling');
+    const diceBeforeAttempt = useGameStore.getState().dice;
+
+    rollDice();
+
+    expect(useGameStore.getState().dice).toBe(diceBeforeAttempt);
+    expect(useGameStore.getState().turnPhase).toBe('rolling');
+  });
+
+  it('should detect double and set hasDouble flag', () => {
+    const { initGame } = useGameStore.getState();
+    initGame(['Joueur 1', 'Joueur 2']);
+
+    for (let i = 0; i < 100; i++) {
+      useGameStore.setState({ turnPhase: 'idle', dice: null });
+      const { rollDice: roll } = useGameStore.getState();
+      roll();
+
+      const state = useGameStore.getState();
+      const [die1, die2] = state.dice!;
+
+      if (die1 === die2) {
+        expect(state.hasDouble).toBe(true);
+        expect(state.players[0].hasDouble).toBe(true);
+        expect(state.players[0].consecutiveDoubles).toBe(1);
+        break;
+      }
+    }
+  });
+
+  it('should send player to jail on three consecutive doubles', () => {
+    const { initGame } = useGameStore.getState();
+    initGame(['Joueur 1', 'Joueur 2']);
+
+    const currentPlayer = useGameStore.getState().players[0];
+    useGameStore.setState({
+      players: useGameStore.getState().players.map((p) =>
+        p.id === currentPlayer.id ? { ...p, consecutiveDoubles: 2 } : p
+      ),
+    });
+
+    let tripleDoubleFound = false;
+    for (let i = 0; i < 1000; i++) {
+      useGameStore.setState({ turnPhase: 'idle', dice: null });
+      const currentState = useGameStore.getState();
+      const prevConsecutiveDoubles = currentState.players[0].consecutiveDoubles;
+
+      const { rollDice: roll } = currentState;
+      roll();
+
+      const state = useGameStore.getState();
+      const [die1, die2] = state.dice!;
+
+      if (die1 === die2 && prevConsecutiveDoubles === 2) {
+        tripleDoubleFound = true;
+        expect(state.players[0].inJail).toBe(true);
+        expect(state.players[0].tileIndex).toBe(10);
+        expect(state.players[0].consecutiveDoubles).toBe(0);
+        expect(state.turnPhase).toBe('acting');
+        break;
+      }
+
+      if (die1 !== die2) {
+        // Reset to consecutiveDoubles 2 for next iteration
+        useGameStore.setState({
+          players: state.players.map((p) =>
+            p.id === currentPlayer.id ? { ...p, consecutiveDoubles: 2 } : p
+          ),
+        });
+      }
+    }
+
+    expect(tripleDoubleFound).toBe(true);
+  });
+
+  it('should reset consecutive doubles when rolling non-double', () => {
+    const { initGame } = useGameStore.getState();
+    initGame(['Joueur 1', 'Joueur 2']);
+
+    const currentPlayer = useGameStore.getState().players[0];
+    useGameStore.setState({
+      players: useGameStore.getState().players.map((p) =>
+        p.id === currentPlayer.id ? { ...p, consecutiveDoubles: 2 } : p
+      ),
+    });
+
+    let nonDoubleFound = false;
+    for (let i = 0; i < 1000; i++) {
+      useGameStore.setState({ turnPhase: 'idle', dice: null });
+      const { rollDice: roll } = useGameStore.getState();
+      roll();
+
+      const state = useGameStore.getState();
+      const [die1, die2] = state.dice!;
+
+      if (die1 !== die2) {
+        nonDoubleFound = true;
+        expect(state.players[0].consecutiveDoubles).toBe(0);
+        expect(state.players[0].inJail).toBe(false);
+        expect(state.turnPhase).toBe('moving');
+        break;
+      }
+
+      // If double was rolled, keep consecutiveDoubles at 2 for next iteration
+      if (die1 === die2) {
+        useGameStore.setState({
+          players: state.players.map((p) =>
+            p.id === currentPlayer.id ? { ...p, consecutiveDoubles: 2 } : p
+          ),
+        });
+      }
+    }
+
+    expect(nonDoubleFound).toBe(true);
+  });
 });

@@ -7,6 +7,8 @@ export interface Player {
   bankrupt?: boolean;
   inJail?: boolean;
   doubleCount?: number;
+  hasDouble?: boolean;
+  consecutiveDoubles?: number;
 }
 
 export type GamePhase = 'menu' | 'lobby' | 'playing' | 'ended';
