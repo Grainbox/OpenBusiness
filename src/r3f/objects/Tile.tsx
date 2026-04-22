@@ -1,20 +1,21 @@
 import { useMemo, useState } from 'react';
-import type { GroupProps } from '@react-three/fiber';
 import type { TileDefinition } from '../../game/types/board';
 import type { TileSide } from '../../game/board/getTileSide';
 import { PROPERTY_GROUP_COLORS, isPropertyGroup } from '../../game/board/propertyGroups';
 import { TILE_TYPE_COLORS } from '../theme/tileTheme';
 import TileLabel from '../overlay/TileLabel';
 
-interface TileProps extends GroupProps {
+interface TileProps {
   tile: TileDefinition;
   isCorner?: boolean;
   side: TileSide;
   showAllLabels?: boolean;
   onClick?: () => void;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
 }
 
-const TILE_SIZE = 1.1;
+const TILE_SIZE = 1.9;
 const TILE_HEIGHT = 0.2;
 const CORNER_HEIGHT = 0.3;
 const BAND_HEIGHT = 0.05;
@@ -27,7 +28,6 @@ export default function Tile({
   side,
   showAllLabels,
   onClick,
-  ...groupProps
 }: TileProps) {
   const [hovered, setHovered] = useState(false);
   const height = isCorner ? CORNER_HEIGHT : TILE_HEIGHT;
@@ -49,13 +49,12 @@ export default function Tile({
 
   return (
     <group
-      {...groupProps}
       position={[tile.position[0], 0, tile.position[2]]}
       rotation={[0, rotationY, 0]}
     >
       {showLabel && (
         <group position={[0, labelOffset, 0]}>
-          <TileLabel tile={tile} showPrice={showPrice} emphasized={hovered} />
+          <TileLabel tile={tile} showPrice={showPrice} emphasized={hovered} side={side} />
         </group>
       )}
 

@@ -1,6 +1,6 @@
 export function generateBoardPath(
   size = 11,
-  tileSize = 1.2
+  tileSize = 2.0
 ): [number, number, number][] {
   if (size < 2) {
     throw new Error('Board size must be at least 2.');

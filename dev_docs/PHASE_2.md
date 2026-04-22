@@ -312,33 +312,33 @@ export const PROPERTY_GROUP_COLORS: Record<string, string> = {
 **Checklist :**
 
 **Plateau 3D**
-- [ ] Le plateau affiche exactement 40 cases
-- [ ] Les 4 coins spéciaux sont correctement positionnés
-- [ ] Les propriétés affichent un groupe couleur identifiable
-- [ ] Le rendu reste lisible en vue isométrique fixe
+- [x] Le plateau affiche exactement 40 cases
+- [x] Les 4 coins spéciaux sont correctement positionnés
+- [x] Les propriétés affichent un groupe couleur identifiable
+- [x] Le rendu reste lisible en vue isométrique fixe
 
 **Données Métier**
-- [ ] Chaque case a un `index` unique de 0 à 39
-- [ ] Les cases achetables ont un `price` valide
-- [ ] Les types de cases couvrent tout le plateau sans valeur inconnue
-- [ ] Les groupes de propriétés sont cohérents et complets
+- [x] Chaque case a un `index` unique de 0 à 39
+- [x] Les cases achetables ont un `price` valide
+- [x] Les types de cases couvrent tout le plateau sans valeur inconnue
+- [x] Les groupes de propriétés sont cohérents et complets
 
 **Labels & UX**
-- [ ] Les noms de cases sont visibles sans chevauchement majeur
-- [ ] Les prix sont affichés uniquement pour les cases achetables
-- [ ] Le hover visuel fonctionne sans glitch
-- [ ] Le toggle debug labels est actif uniquement en dev
+- [x] Les noms de cases sont visibles sans chevauchement majeur
+- [x] Les prix sont affichés uniquement pour les cases achetables
+- [x] Le hover visuel fonctionne sans glitch
+- [x] Le toggle debug labels est actif uniquement en dev
 
 **Pions**
-- [ ] Les pions 2 à 6 joueurs sont visibles sur Départ
-- [ ] Les offsets évitent les superpositions bloquantes
-- [ ] Les couleurs joueurs sont distinctes
-- [ ] Le rendu des pions n'impacte pas notablement les performances
+- [x] Les pions 2 à 6 joueurs sont visibles sur Départ
+- [x] Les offsets évitent les superpositions bloquantes
+- [x] Les couleurs joueurs sont distinctes
+- [x] Le rendu des pions n'impacte pas notablement les performances
 
 **Qualité**
-- [ ] `npm run lint` retourne 0 erreur
-- [ ] `npm run test` passe (tests board + offsets)
-- [ ] `npm run dev` lance l'app sans warning critique
+- [x] `npm run lint` retourne 0 erreur
+- [x] `npm run test` passe (tests board + offsets)
+- [x] `npm run dev` lance l'app sans warning critique
 
 ---
 
