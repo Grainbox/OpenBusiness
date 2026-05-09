@@ -4,6 +4,7 @@ import { isValidTransition, logInvalidTransition } from './turnMachine';
 import { rollDice as rollDiceLogic, isDouble } from '../logic/dice';
 import { movePawnProgressive } from '../logic/movePawn';
 import { GO_REWARD } from '../logic/goReward';
+import { canBuyProperty, executePropertyPurchase } from '../logic/buyProperty';
 
 export interface GameStateActions {
   initGame: (playerNames: string[]) => void;
@@ -21,6 +22,8 @@ export interface GameStateActions {
   rollDice: () => void;
   resetDiceRoll: () => void;
   endTurn: () => void;
+  buyProperty: (tileIndex: number) => void;
+  declineBuy: () => void;
 }
 
 export interface GameState extends GameStateActions {
@@ -32,6 +35,7 @@ export interface GameState extends GameStateActions {
   hasDouble: boolean;
   properties: Record<number, PropertyState>;
   turnCount: number;
+  propertyForSaleIndex?: number;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -287,6 +291,44 @@ export const useGameStore = create<GameState>((set) => ({
         turnCount: nextIndex === 0 ? state.turnCount + 1 : state.turnCount,
         players: updatedPlayers,
       };
+    });
+  },
+
+  buyProperty: (tileIndex: number) => {
+    set((state) => {
+      const currentPlayer = state.players[state.currentPlayerIndex];
+      if (!currentPlayer) {
+        return state;
+      }
+
+      const result = canBuyProperty(tileIndex, currentPlayer, state.properties);
+      if (!result.canBuy) {
+        console.warn(`Cannot buy property at ${tileIndex}: ${result.reason}`);
+        return state;
+      }
+
+      const { updatedProperties, updatedMoney } = executePropertyPurchase(
+        currentPlayer.id,
+        tileIndex,
+        state.properties,
+        currentPlayer.money
+      );
+
+      return {
+        players: state.players.map((p) =>
+          p.id === currentPlayer.id ? { ...p, money: updatedMoney } : p
+        ),
+        properties: updatedProperties,
+        propertyForSaleIndex: undefined,
+        turnPhase: 'end-turn',
+      };
+    });
+  },
+
+  declineBuy: () => {
+    set({
+      propertyForSaleIndex: undefined,
+      turnPhase: 'end-turn',
     });
   },
 }));

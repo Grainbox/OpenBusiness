@@ -5,7 +5,9 @@ import RollDiceButton from './ui/components/RollDiceButton';
 import ResetDiceButton from './ui/components/ResetDiceButton';
 import GameInitButton from './ui/components/GameInitButton';
 import GoRewardNotification from './ui/components/GoRewardNotification';
+import { BuyPropertyDialog } from './ui/components/BuyPropertyDialog';
 import { useMovePawn } from './game/hooks/useMovePawn';
+import { useActingPhase } from './game/hooks/useActingPhase';
 
 function App() {
   const [showAllLabels, setShowAllLabels] = useState(false);
@@ -13,6 +15,8 @@ function App() {
 
   // Trigger pawn movement when rolling dice
   useMovePawn();
+  // Handle property purchase phase
+  useActingPhase();
 
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
@@ -46,6 +50,7 @@ function App() {
       <RollDiceButton />
       <ResetDiceButton />
       <GoRewardNotification />
+      <BuyPropertyDialog />
     </div>
   );
 }
